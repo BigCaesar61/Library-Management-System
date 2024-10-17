@@ -66,16 +66,16 @@ class Book {
         this._isAvailable = true //when true that means the book is available
     }
 
-    getDetails() {
-        console.log(`Title: ${this.title}, Author: ${this.author}, ISBN: ${this.ISBN}`);
-    }
-
-    get _isAvailable() {
+    get isAvailable() {
         return this._isAvailable; //tells us if the book is available
     }
 
-    set _isAvailable(status) {
+    set isAvailable(status) {
         this._isAvailable = status; //alows you to set status of the book (true or false)
+    }
+
+    getDetails() {
+        console.log(`Title: ${this.title}, Author: ${this.author}, ISBN: ${this.ISBN}`);
     }
 
 }
@@ -91,22 +91,22 @@ class Section {
     }
 
     addBook(book) {
-        this.book.push(book); //method that pushes new books into our book array
+        this.books.push(book); //method that pushes new books into our book array
     }
 
     getAvailableBooks() {
-        return this.books.filter(book => book._isAvailable).length; //number of books available
+        return this.books.filter(book => book.isAvailable).length; //number of books available
     }
 
     //Task 5: Handle Books Borrowing and Returning
 
     calculateTotalBooksAvailable() {
-        return this.books.filter(book => book._isAvailable).length; //returns number of books available
+        return this.books.filter(book => book.isAvailable).length; //returns number of books available
     }
 
     listBooks() {
         this.books.forEach(book => {
-            console.log(`Title: ${book.title}, Available: ${book._isAvailable ? 'Yes' : 'No'}`)
+            console.log(`Title: ${book.title}, Available: ${book.isAvailable ? 'Yes' : 'No'}`)
         });
     }
 }
@@ -153,18 +153,15 @@ class VIPPatron extends Patron {
     }
 
     borrowBook(book, competingPatron = null) { //overrides borrowbook method for the VIP
-        if (competingPatron && !competingPatron.priority && !book._isAvailable) {
-            console.log(`${this.name} has priority over ${competingPatron.name} to borrow "${book.title}".`)
-        }
-
-        if (book._isAvailable || this.priority) {
-            this.borrowedBooks.push(book);
-            book._isAvailable = false; //updates book availability status
-            console.log(`${this.name} (VIP) has borrowed "${book.title}".`)
+        if (book.isAvailable) {
+            super.borrowBook(book); // Use the parent class method if book is available
+        } else if (competingPatron && !competingPatron.priority) {
+            // Handle case where VIP has priority over a non-VIP trying to borrow the same book
+            console.log(`${this.name} has priority over ${competingPatron.name} to borrow "${book.title}".`);
+            super.borrowBook(book); // VIP borrows the book
         } else {
-            console.log(`"${book.title}" is currently not available.`)
-        }
+            console.log(`"${book.title}" is currently not available.`);
     }
+ }
+
 }
-
-
